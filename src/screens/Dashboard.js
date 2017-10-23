@@ -18,7 +18,7 @@ class Dashboard extends Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.fetchBooks();
     }
 
@@ -35,7 +35,8 @@ class Dashboard extends Component {
         BooksAPI.update(book, opt).then(resp => {
             const index = _.findIndex(books, item => item.id === book.id);
             
-            books[index].shelf = opt;
+            if(index !== -1)
+                books[index].shelf = opt;
 
             this.setState({ books });
         });

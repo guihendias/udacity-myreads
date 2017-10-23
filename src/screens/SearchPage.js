@@ -17,10 +17,19 @@ class SearchPage extends Component {
     }
 
     search(term) {
-        this.setState({ books: null }, () => {
-            BooksAPI.search(term)
-                .then(books => this.setState({ books: books.error ? [] : books }))
-                .catch(books => console.log(books));
+        term && this.setState({ books: null }, () => {
+            BooksAPI.search(term).then(books => {
+                books.error ? 
+                this.setState({ books }) 
+                :
+                BooksAPI.getAll().then(shelfBooks => {
+                    const bookIds = _.map(shelfBooks, 'id');
+                    
+                    books = books.filter(book => !bookIds.includes(book.id))
+                    this.setState({ books });
+                });
+
+            }).catch(error => console.log(error));
         });
     }
 
@@ -33,6 +42,9 @@ class SearchPage extends Component {
 
     renderBookList() {
         const { books } = this.state;
+        
+        if(books.error == 'empty query')
+            return <p style={{ textAlign: 'center' }}>Nenhum resultado disponível</p>
         return (
             <ol className="books-grid">
                 { books.map(book => (
